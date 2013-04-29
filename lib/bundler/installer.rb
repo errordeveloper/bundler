@@ -129,7 +129,9 @@ module Bundler
       else
         Bundler.ui.warn "Installing #{spec.name} (#{spec.version}) failed after #{retries} retries: #{e.message}."
         Bundler.ui.warn "Giving up"
-        raise
+        msg = "An error, most likely because of network issues, has occurred trying to install #{spec.name} (#{spec.version}), "
+        msg << "and Bundler cannot continue."
+        raise Bundler::InstallError, msg
       end
     rescue Exception => e
       # install hook failed
