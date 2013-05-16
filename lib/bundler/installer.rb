@@ -98,7 +98,7 @@ module Bundler
     end
 
     def install_gem_from_spec(spec, standalone = false)
-      retries = 0
+      retries = 1
       # Download the gem to get the spec, because some specs that are returned
       # by rubygems.org are broken and wrong.
       Bundler::Fetcher.fetch(spec) if spec.source.is_a?(Bundler::Source::Rubygems)
@@ -120,10 +120,11 @@ module Bundler
 
       FileUtils.rm_rf(Bundler.tmp)
     rescue Gem::RemoteFetcher::FetchError => e
-      if retries < MAX_RETRIES
+      if retries <= MAX_RETRIES
         Bundler.ui.warn "#{e.class}: #{e.message}"
         Bundler.ui.warn "Installing #{spec.name} (#{spec.version}) failed."
-        Bundler.ui.warn "Retrying (#{retries}/MAX_RETRIES)"
+        Bundler.ui.warn "Retrying (#{retries}/#{MAX_RETRIES})"
+        sleep retries
         retries += 1
         retry
       else
